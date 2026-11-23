@@ -61,6 +61,9 @@ final class SceneSnapshotTests: XCTestCase {
                 try capture("setup-\(game.rawValue)-\(edition.rawValue)", nil, SetupView(game: game))
             }
         }
+        for game in GameID.allCases {
+            try capture("info-\(game.rawValue)", nil, EditionInfo(game: game, remasteredAvailable: game != .hp1))
+        }
         try capture("settings", nil, SettingsView())
         try capture("help", nil, HelpView())
     }

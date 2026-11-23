@@ -85,7 +85,10 @@ private struct Hero: View {
                     if ready { Button("Set Up Again…") { library.showingSetup = true }.disabled(library.activity != nil) }
                 }
                 .accessibilityHint(ready ? "Starts \(game.title), \(edition.title)" : "Opens the setup steps for \(game.title)")
-                EditionTabs(game: game, selection: edition, available: { library.available($0, for: game) }) { library.setEdition($0, for: game) }
+                HStack(spacing: 14) {
+                    EditionTabs(game: game, selection: edition, available: { library.available($0, for: game) }) { library.setEdition($0, for: game) }
+                    InfoButton(game: game, remasteredAvailable: library.available(.remastered, for: game))
+                }
             }
             .padding(.top, 26)
         }
@@ -104,6 +107,24 @@ private struct Hero: View {
         if let other = library.running { return "\(other.title) is running." }
         if let last = library.state(game).lastPlayed { return "Last played \(last.formatted(.relative(presentation: .named)))." }
         return nil
+    }
+}
+
+private struct InfoButton: View {
+    let game: GameID
+    let remasteredAvailable: Bool
+    @State private var showing = false
+
+    var body: some View {
+        Button { showing.toggle() } label: {
+            Image(systemName: "info.circle").font(.system(size: 14)).foregroundStyle(Theme.secondaryInk)
+                .frame(width: 22, height: 22).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help("About the editions")
+        .accessibilityLabel("About the editions of \(game.title)")
+        .popover(isPresented: $showing, arrowEdge: .bottom) { EditionInfo(game: game, remasteredAvailable: remasteredAvailable) }
+        .padding(.bottom, 8)   // level with the tab labels, which sit above their rule
     }
 }
 

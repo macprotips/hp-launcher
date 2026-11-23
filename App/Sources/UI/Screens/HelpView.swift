@@ -20,10 +20,17 @@ struct HelpView: View {
             "Your files are only read. HP Launcher keeps its own copy and never changes yours.",
         ]),
         Topic(title: "Remastered", lines: [
-            "A modern engine that runs your game files directly on your Mac. It needs nothing else.",
-            "Available now for Chamber of Secrets and Prisoner of Azkaban. It is greyed out for Sorcerer’s Stone until it is ready.",
-            "It plays copies that still have their disc copy protection. Prisoner of Azkaban needs the North American PC release.",
-            "In Chamber of Secrets, controllers work as soon as you plug one in or pair it. Prisoner of Azkaban uses the keyboard and mouse for now.",
+            "A new engine that runs your game files natively on your Mac. It needs nothing else.",
+            "Available for Chamber of Secrets and Prisoner of Azkaban. Sorcerer’s Stone follows in a later update.",
+            "Both are early releases: the whole story plays through, and some details may still differ from the original.",
+            "Chamber of Secrets plays any PC copy, including one with disc copy protection, and works with controllers. Prisoner of Azkaban needs the North American PC release and uses the keyboard and mouse for now.",
+            "For a summary of each game’s editions, click ⓘ next to Original and Remastered.",
+        ]),
+        Topic(title: "How the remasters work", lines: [
+            "They aren’t new versions of the games. The originals were Windows programs built on the Unreal Engine. Each remaster replaces that engine with a new one written for the Mac, and plays the game’s own levels, art, sound and scripts on it unchanged.",
+            "Because the engine runs natively on Apple silicon and draws with Metal, there is no Windows layer: no CrossOver, and no graphics add-on.",
+            "Chamber of Secrets runs on SurrealEngine, an open-source recreation of the original Unreal Engine, extended with what this game needs. Prisoner of Azkaban, made on a later version of the Unreal Engine, has its own engine written from scratch.",
+            "Each part was checked against how the original game behaves, so movement, spells and cutscenes work the way they did.",
         ]),
         Topic(title: "Original", lines: [
             "The game exactly as it shipped, running through CrossOver from CodeWeavers. Get CrossOver 26 or newer, or CrossOver Preview, which is much faster.",

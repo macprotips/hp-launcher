@@ -1,0 +1,6 @@
+build/
+DerivedData/
+*.xcodeproj/
+.local/
+.DS_Store
+*.xcuserstate

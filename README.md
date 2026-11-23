@@ -45,7 +45,9 @@ The build signs with a Developer ID certificate. Set `DEVELOPMENT_TEAM` in `proj
 
 Design notes are in [docs/Design.md](docs/Design.md).
 
-## Legal
+## License
+
+MIT, see [LICENSE](LICENSE). The license covers this code only, not the games or the Remastered engines.
 
 HP Launcher is an independent project, not affiliated with or endorsed by Warner Bros., Electronic Arts
 or CodeWeavers. Harry Potter names are trademarks of their owners.

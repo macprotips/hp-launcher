@@ -7,12 +7,14 @@ and *Prisoner of Azkaban* from your own game files.
 
 ![HP Launcher](docs/screenshot.png)
 
-Each game can be played two ways:
+Each game can be played three ways:
 
 - **Original** runs the Windows game as it shipped, through [CrossOver](https://www.codeweavers.com/crossover)
   and [dgVoodoo 2](http://dege.freeweb.hu/dgVoodoo2/).
-- **Remastered** runs a native engine on the same files. The engines are separate projects and aren't
-  in this repository.
+- **Remastered** runs the game natively on Apple silicon, with no CrossOver needed. HP Launcher comes
+  with Remastered engines for *Chamber of Secrets* and *Prisoner of Azkaban*. They're built in their
+  own projects and added to the app at release, so a build of this repository alone offers Original
+  and Custom.
 - **Custom** runs an engine you choose, such as a community decompilation, on the same files.
 
 The games aren't included. Choose your installed copy, a ZIP of it or a disc image, and the app makes

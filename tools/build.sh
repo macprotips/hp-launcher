@@ -17,7 +17,7 @@ ditto ".local/DerivedData/Build/Products/Release/HP Launcher.app" "$APP"
 
 if [ -d "$ENGINES" ]; then
   # A release must never go out without an engine it used to have.
-  [ -d "$ENGINES/HP2.app" ] || { echo "error: $ENGINES/HP2.app is missing. Run tools/update-remaster.sh hp2." >&2; exit 1; }
+  [ -d "$ENGINES/HP2.app" ] || { echo "error: $ENGINES has no HP2.app." >&2; exit 1; }
   mkdir -p "$APP/Contents/Helpers"
   for ENGINE in "$ENGINES"/*.app; do
     HELPER="$APP/Contents/Helpers/$(basename "$ENGINE")"

@@ -22,7 +22,7 @@ struct HelpView: View {
         Topic(title: "Remastered", lines: [
             "A new engine that runs your game files natively on your Mac. It needs nothing else.",
             "Available for Chamber of Secrets and Prisoner of Azkaban. Sorcerer’s Stone follows in a later update.",
-            "Both are early releases: the whole story plays through, and some details may still differ from the original.",
+            "Both are in beta: the whole story plays through, and some details may still differ from the original.",
             "Chamber of Secrets plays any PC copy, including one with disc copy protection, and works with controllers. Prisoner of Azkaban needs the North American PC release and uses the keyboard and mouse for now.",
             "For a summary of each game’s editions, click ⓘ next to Original and Remastered.",
         ]),

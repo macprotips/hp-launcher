@@ -36,7 +36,7 @@ struct EditionInfo: View {
             break
         }
         return lines + ["Keeps its own saves, separate from Original.",
-                        "Early release: the whole story plays through, and some details may still differ from the original."]
+                        "Beta: the whole story plays through, and some details may still differ from the original."]
     }
 
     private func section(_ title: String, lines: [String]) -> some View {

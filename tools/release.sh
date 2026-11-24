@@ -1,7 +1,7 @@
 #!/bin/sh
 # Builds, notarizes and packages HP Launcher for download: build/HP Launcher <version>.zip
 #
-# Notarization needs Apple credentials stored once on this Mac by the owner:
+# Notarization needs Apple credentials, stored once on this Mac:
 #   xcrun notarytool store-credentials HPLauncher --apple-id <email> --team-id MD83L42DNL
 # (it asks for an app-specific password from account.apple.com). Without that profile this stops
 # after building, and says so.

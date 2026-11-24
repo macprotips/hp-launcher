@@ -20,19 +20,21 @@ copy and never changes yours.
 
 ## The remasters (beta)
 
-Each remaster replaces the game's original Windows engine with one built for the Mac, and plays the
-original levels, art, sound and scripts on it. Nothing runs through Windows, so there's no CrossOver or
-graphics add-on to set up.
+The originals are Unreal Engine games built for Windows on x86. The remasters are native arm64 engines
+that load the shipped packages and run the games' own UnrealScript, so there's no Wine, no x86
+translation and no Direct3D wrapper in the way.
 
-- **Chamber of Secrets** runs on [SurrealEngine](https://github.com/dpjudas/SurrealEngine), an open-source
-  recreation of Unreal Engine 1, extended for this game. It plays any PC copy, including discs that still
-  have their copy protection, and controllers work as soon as you connect one.
-- **Prisoner of Azkaban** has its own engine, written from scratch in C++ and Metal. It needs the North
-  American PC release and uses the keyboard and mouse for now.
+- **Chamber of Secrets**: a fork of [SurrealEngine](https://github.com/dpjudas/SurrealEngine), the
+  open-source Unreal Engine 1 reimplementation, extended with the engine classes and natives HP2 adds.
+  It renders through Vulkan on MoltenVK and handles gamepads through SDL3. `Game.exe` never runs, so
+  copies with SafeDisc work.
+- **Prisoner of Azkaban**: HP3 is built on Unreal Engine 2, which SurrealEngine doesn't cover, so it has
+  its own engine, written from scratch in C++ with an UnrealScript VM and a Metal renderer. It expects
+  the North American release and is keyboard and mouse only for now.
 
-Both play the whole story, start to finish. They're in beta, so some details may still differ from the
-originals. They're developed separately and ship inside the app; a build of this repository alone offers
-Original and Custom.
+Both are playable start to finish. They're beta, so expect differences from the originals in places.
+They're developed separately and ship inside the app; building this repository alone gives you Original
+and Custom.
 
 ## Requirements
 

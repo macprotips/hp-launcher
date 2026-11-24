@@ -42,11 +42,15 @@ final class Library {
         return state
     }
 
-    func available(_ edition: Edition, for id: GameID) -> Bool { edition == .original || remasteredApp(id) != nil }
+    func available(_ edition: Edition, for id: GameID) -> Bool { edition != .remastered || remasteredApp(id) != nil }
 
     func setEdition(_ edition: Edition, for id: GameID) {
         guard available(edition, for: id) else { return }
         update { $0.games[id, default: GameState()].edition = edition }
+    }
+
+    func setCustomEngine(_ engine: CustomEngine?, for id: GameID) {
+        update { $0.games[id, default: GameState()].customEngine = engine }
     }
 
     func useCrossOver(at app: URL) throws(CrossOver.Problem) {
@@ -94,6 +98,7 @@ final class Library {
         switch state(id).edition {
         case .original: crossOver != nil && isInstalled(id) && graphicsReady(id) && record(id)?.copyProtected == false
         case .remastered: isInstalled(id) && remasteredApp(id) != nil && id.remasteredProblem(with: record(id)) == nil
+        case .custom: isInstalled(id) && state(id).customEngine?.exists == true
         }
     }
 
@@ -141,23 +146,29 @@ final class Library {
         try require(activity == nil, "HP Launcher is still busy. Try again in a moment.")
         try require(running == nil, "A game is already running. Quit it first.")
         try await perform("Starting \(id.title)…") { [self] in
-            let process: Process
+            let waitForExit: @Sendable () async -> Void
             switch state(id).edition {
             case .original:
                 guard let crossOver else { throw LauncherError("Choose CrossOver in Setup first.") }
                 var launch = GameLaunch(paths: paths(id), crossOver: crossOver)
                 if id == .hp2 { (launch.slot, launch.newGame) = try SaveSlots(paths: paths(id)).choose(newGame: newGame) }
-                process = try await launch.start(record: record(id))
+                let process = try await launch.start(record: record(id))
+                waitForExit = { process.waitUntilExit() }
             case .remastered:
                 guard let app = remasteredApp(id) else { throw LauncherError("Remastered isn’t available for \(id.title) yet.") }
                 guard isInstalled(id) else { throw LauncherError("Set up \(id.title) first.") }
                 if let problem = id.remasteredProblem(with: record(id)) { throw LauncherError(problem) }
-                process = try RemasteredLaunch(paths: paths(id), app: app).start()
+                let process = try RemasteredLaunch(paths: paths(id), app: app).start()
+                waitForExit = { process.waitUntilExit() }
+            case .custom:
+                guard let engine = state(id).customEngine else { throw LauncherError("Choose an engine in Setup first.") }
+                guard isInstalled(id) else { throw LauncherError("Set up \(id.title) first.") }
+                waitForExit = try await CustomLaunch(paths: paths(id), engine: engine).start().wait
             }
             running = id
             update { $0.games[id, default: GameState()].lastPlayed = .now }
             Task.detached { [weak self] in
-                process.waitUntilExit()
+                await waitForExit()
                 await MainActor.run { self?.running = nil; self?.revision += 1 }
             }
         }

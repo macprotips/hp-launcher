@@ -33,14 +33,15 @@ struct GamePaths: Sendable {
     var documents: URL { bottle.appending(path: "drive_c/users/crossover/Documents/\(game.documentsFolder)") }
     var windowsSystem: String { #"C:\\#(game.driveFolder)\\#(game.systemFolder)"# }
     /// A copy of the player's dgVoodoo ZIP, so other games and repairs don't ask for it again.
-    var graphicsArchive: URL { root.appending(path: "Graphics/dgVoodoo2_79_3.zip") }
+    var graphicsArchive: URL { root.appending(path: "Graphics/dgVoodoo.zip") }
 
-    /// The editions keep separate saves.
-    func saves(_ edition: Edition) -> URL {
+    /// The editions keep separate saves. A custom engine keeps its own wherever it likes.
+    func saves(_ edition: Edition) -> URL? {
         switch (edition, game) {
         case (.remastered, _): URL.applicationSupportDirectory.appending(path: game.remasteredDataFolder)
         case (.original, .hp1): install.appending(path: "Save")
         case (.original, _): documents.appending(path: "Save")
+        case (.custom, _): nil
         }
     }
 }

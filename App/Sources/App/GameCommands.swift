@@ -26,8 +26,9 @@ struct GameCommands: Commands {
                 .keyboardShortcut("u", modifiers: .command)
                 .disabled(library.activity != nil)
             Divider()
-            Button("Show Saved Games in Finder") { NSWorkspace.shared.activateFileViewerSelecting([library.paths(game).saves(edition)]) }
-                .disabled(!Files.exists(library.paths(game).saves(edition)))
+            let saves = library.paths(game).saves(edition)
+            Button("Show Saved Games in Finder") { saves.map { NSWorkspace.shared.activateFileViewerSelecting([$0]) } }
+                .disabled(!(saves.map(Files.exists) ?? false))
             Button("Show Game Files in Finder") { NSWorkspace.shared.activateFileViewerSelecting([library.paths(game).install]) }
                 .disabled(!library.isInstalled(game))
             Button("Show Log in Finder") { NSWorkspace.shared.activateFileViewerSelecting([library.paths(game).log]) }

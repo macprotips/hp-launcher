@@ -3,6 +3,7 @@ import Foundation
 struct GameState: Codable, Equatable, Sendable {
     var edition: Edition = .original
     var lastPlayed: Date?
+    var customEngine: CustomEngine?
 }
 
 /// Saved to Preferences.json.

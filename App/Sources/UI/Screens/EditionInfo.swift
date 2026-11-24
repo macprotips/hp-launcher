@@ -14,6 +14,10 @@ struct EditionInfo: View {
                 "Keyboard and mouse.",
             ])
             section("Remastered", lines: remasteredAvailable ? remasteredLines : ["Coming in a later update."])
+            section("Custom", lines: [
+                "Another developer’s engine, such as a decompilation or recompilation, run on your game files.",
+                "Choose the engine in Setup. It keeps its own saves and settings.",
+            ])
         }
         .padding(20)
         .frame(width: 330, alignment: .leading)

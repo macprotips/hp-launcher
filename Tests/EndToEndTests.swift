@@ -3,7 +3,8 @@ import XCTest
 
 /// Real setup and launch against a player's own files.
 /// Skipped unless HPL_E2E_GAME and HPL_E2E_SOURCE are set. Original also needs HPL_E2E_GRAPHICS and an
-/// installed CrossOver; Remastered needs HPL_E2E_REMASTERED (the engine's .app). The player's files are
+/// installed CrossOver; Remastered needs HPL_E2E_REMASTERED (the engine's .app); Custom needs HPL_E2E_CUSTOM
+/// (an app or program) and optionally HPL_E2E_CUSTOM_ARGS. The player's files are
 /// only read, and everything, including the engine's saves, goes into a temporary data folder.
 @MainActor
 final class EndToEndTests: XCTestCase {
@@ -63,4 +64,40 @@ final class EndToEndTests: XCTestCase {
         print("E2E remastered window found:", windowTitles().contains(game.windowTitle))
         process.terminate()
     }
+
+    func testSetUpAndLaunchCustomEngine() async throws {
+        guard let path = env["HPL_E2E_CUSTOM"] else { throw XCTSkip("Set HPL_E2E_CUSTOM to run a custom engine.") }
+        let (_, paths, _) = try await importGame()
+        let engine = CustomEngine(path: path, arguments: env["HPL_E2E_CUSTOM_ARGS"] ?? "")
+        XCTAssertTrue(engine.exists)
+        if !engine.isApp {
+            // The launcher's own path for programs. Note it isn't sandboxed: the engine sees the real HOME.
+            let running = try await CustomLaunch(paths: paths, engine: engine).start()
+            try await Task.sleep(for: .seconds(Double(env["HPL_E2E_SECONDS"] ?? "") ?? 15))
+            let quit = Flag()
+            Task { await running.wait(); quit.set() }
+            try await Task.sleep(for: .milliseconds(200))
+            XCTAssertFalse(quit.isSet, "The engine quit within the wait. See \(paths.log.path).")
+            print("E2E custom program running")
+            running.stop()
+            return
+        }
+        // As CustomLaunch.start for an app, with HOME moved so the engine's own files stay in the test folder.
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.arguments = engine.argumentList(game: paths.install)
+        configuration.environment = ["HOME": paths.root.path]
+        configuration.createsNewApplicationInstance = true
+        let app = try await NSWorkspace.shared.openApplication(at: engine.url, configuration: configuration)
+        try await Task.sleep(for: .seconds(Double(env["HPL_E2E_SECONDS"] ?? "") ?? 15))
+        XCTAssertFalse(app.isTerminated, "The engine quit within the wait.")
+        print("E2E custom engine running:", app.localizedName ?? "?", app.processIdentifier)
+        app.terminate()
+    }
+}
+
+private final class Flag: @unchecked Sendable {
+    private var value = false
+    private let lock = NSLock()
+    func set() { lock.withLock { value = true } }
+    var isSet: Bool { lock.withLock { value } }
 }

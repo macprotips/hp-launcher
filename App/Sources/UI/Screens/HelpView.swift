@@ -10,7 +10,7 @@ struct HelpView: View {
 
     private let topics = [
         Topic(title: "Getting started", lines: [
-            "Pick a game at the top of the window, then choose Original or Remastered.",
+            "Pick a game at the top of the window, then choose Original, Remastered or Custom.",
             "Click Set Up and follow the steps. You do this once for each game.",
             "After that, click Play.",
         ]),
@@ -32,9 +32,17 @@ struct HelpView: View {
             "Chamber of Secrets runs on SurrealEngine, an open-source recreation of the original Unreal Engine, extended with what this game needs. Prisoner of Azkaban, made on a later version of the Unreal Engine, has its own engine written from scratch.",
             "Each part was checked against how the original game behaves, so movement, spells and cutscenes work the way they did.",
         ]),
+        Topic(title: "Custom", lines: [
+            "Play with another developer’s engine, such as a decompilation or recompilation of the game.",
+            "In Setup, choose your game files, then the engine: a Mac app or a command-line program. HP Launcher starts it in the game folder.",
+            "If the engine needs the folder passed to it, add arguments in Setup. {game} stands for the game folder.",
+            "OpenHP1, an open-source engine for Sorcerer’s Stone, needs no arguments: choose its openhp1-game program and HP Launcher sets it up.",
+            "An engine downloaded from the internet is blocked by macOS the first time. Click Done, then in System Settings > Privacy & Security, click Open Anyway, and press Play again.",
+            "Custom engines keep their own saves and settings. HP Launcher doesn’t check or support them, so ask their developers about problems.",
+        ]),
         Topic(title: "Original", lines: [
             "The game exactly as it shipped, running through CrossOver from CodeWeavers. Get CrossOver 26 or newer, or CrossOver Preview, which is much faster.",
-            "It also needs dgVoodoo 2.79.3, a free graphics add-on. Download the ZIP from its author and choose it in Setup.",
+            "It also needs dgVoodoo 2.79.3, a free graphics add-on. Setup has a link to download it; newer releases crash these games under CrossOver.",
             "Discs from those years carry copy protection that can’t run on a modern system. Original needs a copy without it. Remastered doesn’t.",
         ]),
         Topic(title: "Saved games", lines: [

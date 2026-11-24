@@ -7,17 +7,18 @@ struct SetupView: View {
     @Environment(\.dismiss) private var dismiss
     let game: GameID
     /// One open panel serves every step: SwiftUI handles only one file importer per view reliably.
-    private enum Choice { case crossOver, files, graphics }
+    private enum Choice { case crossOver, files, graphics, engine }
     @State private var choosing = false
     @State private var target = Choice.files   // separate from `choosing`, which resets before the result arrives
     @State private var problem: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            let original = library.state(game).edition == .original
+            let edition = library.state(game).edition
+            let original = edition == .original
             VStack(alignment: .leading, spacing: 6) {
                 Text("Set Up \(game.title)").font(Theme.display(26))
-                Text(library.isReady(game) ? "Ready to play." : original ? "Three steps, done once." : "One step: add your copy of the game.")
+                Text(library.isReady(game) ? "Ready to play." : subtitle(edition))
                     .font(.system(size: 14)).foregroundStyle(.secondary)
             }
             VStack(spacing: 0) {
@@ -32,9 +33,18 @@ struct SetupView: View {
                      enabled: library.activity == nil) { choose(.files) }
                 if original {
                     Divider().padding(.leading, 58)
-                    Step(number: 3, title: "Graphics support", detail: "The free dgVoodoo 2.79.3 ZIP from [its author’s site](http://dege.freeweb.hu/dgVoodoo2/). It keeps the graphics fast and sharp.",
+                    Step(number: 3, title: "Graphics support", detail: graphicsDetail,
                          done: library.graphicsReady(game), action: library.graphicsReady(game) ? "Replace…" : "Choose…",
                          enabled: library.isInstalled(game) && library.activity == nil) { choose(.graphics) }
+                }
+                if edition == .custom {
+                    let engine = library.state(game).customEngine
+                    Divider().padding(.leading, 58)
+                    Step(number: 2, title: "Engine", detail: engineDetail(engine), done: engine?.exists == true,
+                         action: engine == nil ? "Choose…" : "Change…") { choose(.engine) }
+                    if let engine {
+                        ArgumentsField(engine: engine) { library.setCustomEngine($0, for: game) }
+                    }
                 }
             }
             .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -70,9 +80,12 @@ struct SetupView: View {
                 Task { do { try await library.importGame(game, from: url) } catch { problem = error.localizedDescription } }
             case .graphics:
                 Task { do { try await library.installGraphics(game, from: url) } catch { problem = error.localizedDescription } }
+            case .engine:
+                let engine = CustomEngine(path: url.path, arguments: library.state(game).customEngine?.arguments ?? "")
+                if engine.exists { library.setCustomEngine(engine, for: game) } else { problem = "That isn’t an app or a program HP Launcher can start." }
             }
         }
-        .fileDialogDefaultDirectory(target == .crossOver ? URL(filePath: "/Applications") : nil)
+        .fileDialogDefaultDirectory(target == .crossOver ? URL(filePath: "/Applications") : target == .graphics ? .downloadsDirectory : nil)
     }
 
     private func choose(_ choice: Choice) {
@@ -84,8 +97,29 @@ struct SetupView: View {
         switch target {
         case .crossOver: [.applicationBundle]
         case .graphics: [.zip]
+        case .engine: [.application, .unixExecutable]
         default: [.folder, .zip, .diskImage, UTType(filenameExtension: "iso") ?? .data]
         }
+    }
+
+    private func subtitle(_ edition: Edition) -> String {
+        switch edition {
+        case .original: "Three steps, done once."
+        case .remastered: "One step: add your copy of the game."
+        case .custom: "Two steps: your copy of the game, then the engine to run it."
+        }
+    }
+
+    private func engineDetail(_ engine: CustomEngine?) -> String {
+        guard let engine else {
+            return game == .hp1
+                ? "Another developer’s engine, such as OpenHP1: choose its openhp1-game program, and HP Launcher sets it up."
+                : "Another developer’s engine for \(game.title), such as a decompilation or recompilation. A Mac app or a command-line program."
+        }
+        guard engine.exists else { return "\(engine.name) isn’t where it was. Choose it again." }
+        let ready = engine.isOpenHP1 ? "OpenHP1, set up to use your game files." : "\(engine.name). It starts in the game folder."
+        guard engine.needsApproval else { return ready }
+        return ready + " The first time, macOS will say it can’t open it, because it came from the internet. Click Done, then in System Settings > Privacy & Security, click Open Anyway and press Play again."
     }
 
     /// Why the installed copy can't be played in this edition, if it can't.
@@ -94,13 +128,20 @@ struct SetupView: View {
         if original && record.copyProtected {
             return "This copy still has its disc copy protection, which can’t run in CrossOver. Choose a copy without it, or play Remastered."
         }
-        return original ? nil : game.remasteredProblem(with: record)
+        return library.state(game).edition == .remastered ? game.remasteredProblem(with: record) : nil
     }
 
     private func filesDetail(original: Bool) -> String {
         guard let record = library.record(game) else { return "The folder your PC copy of \(game.title) is installed in, or a ZIP or disc image of it." }
         if let problem = filesProblem(original: original) { return problem }
         return "Installed: \(record.fileCount) files, \(ByteCountFormatter.string(fromByteCount: record.bytes, countStyle: .file))."
+    }
+
+    private var graphicsDetail: String {
+        guard Graphics.isInstalled(library.paths(game)) else {
+            return "The free dgVoodoo 2.79.3. [Download the ZIP](\(Graphics.download)), then choose it here. Newer releases crash these games."
+        }
+        return "dgVoodoo \(Graphics.supportedVersion) is ready."
     }
 
     private var crossOverDetail: String {
@@ -114,6 +155,35 @@ struct SetupView: View {
                 ? "\(crossOver.name) works, but runs these games slowly. CrossOver Preview is much faster."
                 : "\(crossOver.name) is ready. This version hasn’t been tested with HP Launcher yet."
         }
+    }
+}
+
+/// Extra command-line arguments for a custom engine, saved as the player types.
+private struct ArgumentsField: View {
+    let engine: CustomEngine
+    let save: (CustomEngine) -> Void
+    @State private var text = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            TextField("Arguments (optional)", text: $text)
+                .textFieldStyle(.roundedBorder)
+                .font(.system(size: 13, design: .monospaced))
+                .onSubmit(commit)
+            Text("Only if the engine needs them. {game} stands for the game folder.")
+                .font(.system(size: 12)).foregroundStyle(.secondary)
+        }
+        .padding(.leading, 58)
+        .padding(.trailing, 18)
+        .padding(.bottom, 16)
+        .onAppear { text = engine.arguments }
+        .onChange(of: text) { commit() }
+    }
+
+    private func commit() {
+        var updated = engine
+        updated.arguments = text
+        if updated != engine { save(updated) }
     }
 }
 

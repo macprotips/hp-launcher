@@ -114,7 +114,7 @@ final class ImportTests: XCTestCase {
         XCTAssertTrue(Files.exists(source.appending(path: "System/HP.exe")), "The player's own files must be left in place.")
 
         // What playing leaves behind: a save and the game's settings, both inside the game folder.
-        let save = paths.saves(.original).appending(path: "save0.usa")
+        let save = paths.saves(.original)!.appending(path: "save0.usa")
         try Data("progress".utf8).write(to: save)
         try Data("[Keys]\r\n".utf8).write(to: paths.system.appending(path: "HP.ini"))
 
@@ -130,7 +130,7 @@ final class ImportTests: XCTestCase {
         try makeImportableHP1(at: source)
         let paths = GamePaths(game: .hp1, data: DataRoot(url: root.appending(path: "Data")))
         _ = try await Importer(paths: paths).run(from: source)
-        let save = paths.saves(.original).appending(path: "save0.usa")
+        let save = paths.saves(.original)!.appending(path: "save0.usa")
         try Data("progress".utf8).write(to: save)
         let fm = FileManager.default
 

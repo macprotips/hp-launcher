@@ -5,7 +5,7 @@ import Foundation
 struct SaveSlots: Sendable {
     let paths: GamePaths
 
-    func folder(_ slot: Int) -> URL { paths.saves(.original).appending(path: "Slot\(slot)") }
+    func folder(_ slot: Int) -> URL { paths.documents.appending(path: "Save/Slot\(slot)") }
 
     /// Last-saved dates. The game creates all six folders, so a slot counts as used once it holds Save0.usa.
     var used: [Int: Date] {

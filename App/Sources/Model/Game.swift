@@ -32,14 +32,16 @@ enum GameID: String, CaseIterable, Codable, Identifiable, Sendable {
     }
 }
 
-/// Original runs the shipped Windows game through CrossOver; Remastered runs a native engine on the same files.
+/// Original runs the shipped Windows game through CrossOver; Remastered runs a bundled native engine on
+/// the same files; Custom runs an engine the player chooses.
 enum Edition: String, CaseIterable, Codable, Sendable {
-    case original, remastered
+    case original, remastered, custom
 
     var title: String {
         switch self {
         case .original: "Original"
         case .remastered: "Remastered"
+        case .custom: "Custom"
         }
     }
 
@@ -47,6 +49,7 @@ enum Edition: String, CaseIterable, Codable, Sendable {
         switch self {
         case .original: "The \(game.year) PC game, exactly as it shipped."
         case .remastered: "A modern rebuild that uses the same game files."
+        case .custom: "Another developer’s engine, run on the same game files."
         }
     }
 }

@@ -13,6 +13,7 @@ Each game can be played two ways:
   and [dgVoodoo 2](http://dege.freeweb.hu/dgVoodoo2/).
 - **Remastered** runs a native engine on the same files. The engines are separate projects and aren't
   in this repository.
+- **Custom** runs an engine you choose, such as a community decompilation, on the same files.
 
 The games aren't included. Choose your installed copy, a ZIP of it or a disc image, and the app makes
 its own copy. Your files are only read.
@@ -41,6 +42,7 @@ The build signs with a Developer ID certificate. Set `DEVELOPMENT_TEAM` in `proj
 | `App/Sources/Import` | turning a folder, ZIP or disc image into the app's copy |
 | `App/Sources/Original` | running the Windows games under CrossOver |
 | `App/Sources/Remastered` | starting the native engines |
+| `App/Sources/Custom` | running an engine the player chooses |
 | `App/Sources/UI` | the window, setup, settings and the night scenes |
 
 Design notes are in [docs/Design.md](docs/Design.md).

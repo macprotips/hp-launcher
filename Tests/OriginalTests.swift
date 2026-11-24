@@ -27,6 +27,24 @@ final class OriginalTests: XCTestCase {
 
     // MARK: Graphics and launch
 
+    /// A 32-bit Windows DLL whose contents include `text` as UTF-16, as dgVoodoo's version is stored.
+    private func dll(containing text: String, offset: Int) throws -> URL {
+        var bytes = [UInt8](repeating: 0, count: 2048)
+        bytes[0] = 0x4D; bytes[1] = 0x5A; bytes[0x3C] = 0x80
+        bytes.replaceSubrange(0x80..<0x84, with: [0x50, 0x45, 0, 0]); bytes[0x84] = 0x4C; bytes[0x85] = 0x01
+        for (i, unit) in text.utf16.enumerated() { bytes[offset + 2 * i] = UInt8(unit & 0xFF); bytes[offset + 2 * i + 1] = UInt8(unit >> 8) }
+        let url = root.appending(path: "\(UUID().uuidString).dll")
+        try Data(bytes).write(to: url)
+        return url
+    }
+
+    func testDgVoodooDLLsNameTheirRelease() throws {
+        XCTAssertEqual(Graphics.version(of: try dll(containing: "2.79.3", offset: 600)), "2.79.3")
+        XCTAssertEqual(Graphics.version(of: try dll(containing: "2.87.7", offset: 1001)), "2.87.7")   // odd offsets too
+        XCTAssertNil(Graphics.version(of: try dll(containing: "none", offset: 600)), "Not a dgVoodoo DLL")
+        XCTAssertEqual(Graphics.supportedVersion, "2.79.3", "2.87.7 crashes HP2 under CrossOver; test before changing")
+    }
+
     func testGraphicsProfilesDifferByGame() {
         let hp2 = Graphics.configuration("", game: .hp2)
         XCTAssertEqual(INI.value(hp2, section: "DirectX", key: "AppControlledScreenMode"), "true")
